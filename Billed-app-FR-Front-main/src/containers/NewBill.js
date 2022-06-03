@@ -19,12 +19,15 @@ export default class NewBill {
   }
   handleChangeFile = (e) => {
     e.preventDefault();
-    const file = this.document.querySelector(`input[data-testid="file"]`)
-      .files[0];
-    console.log(file.name);
 
     const extendAccepted = new RegExp(".(jpg|jpeg|png)$");
-    if (extendAccepted.test(file.name)) {
+    if (
+      extendAccepted.test(
+        this.document.querySelector(`input[data-testid="file"]`).files[0].name
+      )
+    ) {
+      const file = this.document.querySelector(`input[data-testid="file"]`)
+        .files[0];
       const filePath = e.target.value.split(/\\/g);
       const fileName = filePath[filePath.length - 1];
 
@@ -49,9 +52,10 @@ export default class NewBill {
         })
         .catch((error) => console.error(error));
     } else {
-      console.log("error here ! ");
+      this.document.querySelector(`input[data-testid="file"]`).value = "";
     }
   };
+
   handleSubmit = (e) => {
     e.preventDefault();
     console.log(
