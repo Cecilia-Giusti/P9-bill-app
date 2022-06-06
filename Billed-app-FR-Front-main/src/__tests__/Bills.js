@@ -4,6 +4,7 @@
 
 import "@testing-library/jest-dom";
 import { screen, waitFor, getByTestId } from "@testing-library/dom";
+import userEvent from "@testing-library/user-event";
 import BillsUI from "../views/BillsUI.js";
 import { bills } from "../fixtures/bills.js";
 import { ROUTES_PATH } from "../constants/routes.js";
@@ -44,6 +45,32 @@ describe("Given I am connected as an employee", () => {
       const antiChrono = (a, b) => (a < b ? 1 : -1);
       const datesSorted = [...dates].sort(antiChrono);
       expect(dates).toEqual(datesSorted);
+    });
+  });
+
+  describe(`when I click on the "new bill" button`, () => {
+    test("then, the form for the new expense report is displayed", () => {
+      Object.defineProperty(window, "localStorage", {
+        value: localStorageMock,
+      });
+      window.localStorage.setItem(
+        "user",
+        JSON.stringify({
+          type: "Employee",
+        })
+      );
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      document.body.append(root);
+      router();
+      window.onNavigate(ROUTES_PATH.Bills);
+
+      const newBillButton = getByTestId(document.body, "btn-new-bill");
+      userEvent.click(newBillButton);
+
+      expect(getByTestId(document.body, "send-new-bill")).toHaveTextContent(
+        "Envoyer une note de frais"
+      );
     });
   });
 });
