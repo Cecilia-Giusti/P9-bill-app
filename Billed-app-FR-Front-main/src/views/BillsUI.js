@@ -4,7 +4,7 @@ import LoadingPage from "./LoadingPage.js";
 
 import Actions from "./Actions.js";
 
-const row = (bill) => {
+export const row = (bill) => {
   return `
     <tr>
       <td>${bill.type}</td>
@@ -21,17 +21,21 @@ const row = (bill) => {
 
 const antiChrono = (a, b) => (a.date < b.date ? 1 : -1);
 const rows = (data) => {
-  return data && data.length
-    ? data
-        .sort(antiChrono)
-        .map((bill) => row(bill))
-        .join("")
-    : "";
+  if (data && data.length >= 2) {
+    return data
+      .sort(antiChrono)
+      .map((bill) => row(bill))
+      .join("");
+  } else if (data && data.length) {
+    return row(data).join("");
+  } else {
+    return "";
+  }
 };
 
 export default ({ data: bills, loading, error }) => {
   const modal = () => `
-    <div class="modal fade" id="modaleFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal fade" id="modaleFile" tabindex="-1" data-testid="modal-justify" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
