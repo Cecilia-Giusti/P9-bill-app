@@ -15,7 +15,7 @@ export default () => {
                   <div class="col-half">
                     <label for="expense-type" class="bold-label">Type de dépense</label>
                       <select required class="form-control blue-border" data-testid="expense-type">
-                        <option>Transports</option>
+                        <option value="Transports">Transports</option>
                         <option>Restaurants et bars</option>
                         <option>Hôtel et logement</option>
                         <option>Services en ligne</option>
@@ -30,7 +30,7 @@ export default () => {
                   </div>
                   <div class="col-half">
                     <label for="datepicker" class="bold-label">Date</label>
-                    <input required type="date" class="form-control blue-border" data-testid="datepicker" />
+                    <input required type="date" class="form-control blue-border" id="datepicker" data-testid="datepicker" />
                   </div>
                   <div class="col-half">
                     <label for="amount" class="bold-label">Montant TTC </label>
