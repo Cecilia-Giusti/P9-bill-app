@@ -16,15 +16,35 @@ export default class NewBill {
     this.fileName = null;
     this.billId = null;
     new Logout({ document, localStorage, onNavigate });
+
+    // Création du message d'erreur
+    const errorMessageExtension = document.createElement("div");
+    errorMessageExtension.setAttribute(
+      "class",
+      "errorMessageExtension hiddenError"
+    );
+    errorMessageExtension.innerHTML =
+      "Veuillez ajouter un fichier avec la bonne extension";
+    this.document
+      .querySelector(`input[data-testid="file"]`)
+      .parentNode.appendChild(errorMessageExtension);
   }
+
   handleChangeFile = (e) => {
     e.preventDefault();
-    const acceptedExtension = new RegExp("[\\.jpg|\\.jpeg|\\.png]$");
+    const extendAccepted = new RegExp(".(jpg|jpeg|png)$");
     if (
-      acceptedExtension.test(
-        this.document.querySelector(`input[data-testid="file"]`).files[0]
+      extendAccepted.test(
+        this.document.querySelector(`input[data-testid="file"]`).files[0].name
       )
     ) {
+      const errorMessageExtension = this.document.querySelector(
+        ".errorMessageExtension"
+      );
+      errorMessageExtension.setAttribute(
+        "class",
+        "errorMessageExtension hiddenError"
+      );
       const file = this.document.querySelector(`input[data-testid="file"]`)
         .files[0];
       const filePath = e.target.value.split(/\\/g);
@@ -34,6 +54,7 @@ export default class NewBill {
       const email = JSON.parse(localStorage.getItem("user")).email;
       formData.append("file", file);
       formData.append("email", email);
+      console.log("OK");
 
       this.store
         .bills()
@@ -51,8 +72,14 @@ export default class NewBill {
         })
         .catch((error) => console.error(error));
     } else {
-      console.log("ici !");
-      this.document.querySelector(`input[data-testid="file"]`).innerHTML = " ";
+      const errorMessageExtension = this.document.querySelector(
+        ".errorMessageExtension"
+      );
+      errorMessageExtension.setAttribute(
+        "class",
+        "errorMessageExtension showError"
+      );
+      this.document.querySelector(`input[data-testid="file"]`).value = "";
     }
   };
 
