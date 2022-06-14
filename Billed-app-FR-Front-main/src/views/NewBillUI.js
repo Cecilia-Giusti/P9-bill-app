@@ -8,7 +8,7 @@ export default () => {
         <div class='content-header'>
           <div data-testid="send-new-bill" class='content-title'> Envoyer une note de frais </div>
         </div>
-        <div class="form-newbill-container content-inner">
+        <div id="formNewBill" class="form-newbill-container content-inner">
           <form data-testid="form-new-bill">
             <div class="row">
                 <div class="col-md-6">

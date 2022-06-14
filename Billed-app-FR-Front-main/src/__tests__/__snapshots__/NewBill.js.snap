@@ -1,3 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Given it logged in as an employee When I am on NewBill Page When I upload a file with a right extension When I upload a file with a bad extension Then an error message should be show 1`] = `"Cannot read properties of undefined (reading 'preventDefault')"`;
+
 exports[`Given it logged in as an employee When I am on NewBill Page When I upload a file with a right extension When I upload a file with a bad extension Then an error message should be show in the console 1`] = `"Cannot read properties of undefined (reading 'preventDefault')"`;

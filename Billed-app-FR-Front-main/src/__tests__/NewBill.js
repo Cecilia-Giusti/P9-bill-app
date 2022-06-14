@@ -17,6 +17,44 @@ jest.mock("../app/store", () => mockStore);
 
 describe("Given it logged in as an employee", () => {
   describe("When I am on NewBill Page", () => {
+    test("then a error message of form should not be show", () => {
+      // Création d'un objet avec les propriétés adaptées
+      Object.defineProperty(window, "localStorage", {
+        value: localStorageMock,
+      });
+      // Connexion en tant qu'employé
+      window.localStorage.setItem(
+        "user",
+        JSON.stringify({
+          type: "Employee",
+        })
+      );
+      // Création d'une div root comme dans le DOM
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      // Ajout de la div
+      document.body.append(root);
+      //Lancement de la fonction rooter
+      router();
+      // Navigation sur la page NewBills
+      window.onNavigate(ROUTES_PATH.NewBill);
+
+      // Ajout de la view newbill
+      document.body.innerHTML = NewBillUI();
+
+      // Création d'une nouvelle note de frais
+      const newBillObject = new NewBill({
+        document,
+        onNavigate,
+        store: mockStore,
+        localStorage: window.localStorage,
+      });
+
+      // Récupération du message d'erreur
+      const errorMessageForm = screen.getByTestId("error-message-form");
+      expect(errorMessageForm).toBeTruthy();
+      expect(errorMessageForm).toHaveClass("hiddenError");
+    });
     describe("When I upload a file with a right extension", () => {
       test("Then the file should be uploaded", () => {
         // Création d'un objet avec les propriétés adaptées
@@ -44,7 +82,7 @@ describe("Given it logged in as an employee", () => {
         document.body.innerHTML = NewBillUI();
 
         // Création d'une nouvelle note de frais
-        const newBillObject2 = new NewBill({
+        const newBillObject = new NewBill({
           document,
           onNavigate,
           store: mockStore,
@@ -54,7 +92,7 @@ describe("Given it logged in as an employee", () => {
         // Gestion de la méthode pour l'ajout d'un fichier
         const file = screen.getByTestId("file");
         const handleChangeFile = jest.fn((e) =>
-          newBillObject2.handleChangeFile(e)
+          newBillObject.handleChangeFile(e)
         );
         //Simulation d'un ajout de fichier
         file.addEventListener("change", handleChangeFile);
@@ -75,8 +113,61 @@ describe("Given it logged in as an employee", () => {
         expect(fileTest).toEqual("test.png");
       });
 
+      test("then, the error message should not be show", () => {
+        // Création d'un objet avec les propriétés adaptées
+        Object.defineProperty(window, "localStorage", {
+          value: localStorageMock,
+        });
+        // Connexion en tant qu'employé
+        window.localStorage.setItem(
+          "user",
+          JSON.stringify({
+            type: "Employee",
+          })
+        );
+        // Création d'une div root comme dans le DOM
+        const root = document.createElement("div");
+        root.setAttribute("id", "root");
+        // Ajout de la div
+        document.body.append(root);
+        //Lancement de la fonction rooter
+        router();
+        // Navigation sur la page NewBills
+        window.onNavigate(ROUTES_PATH.NewBill);
+
+        // Ajout de la view newbill
+        document.body.innerHTML = NewBillUI();
+
+        // Création d'une nouvelle note de frais
+        const newBillObject = new NewBill({
+          document,
+          onNavigate,
+          store: mockStore,
+          localStorage: window.localStorage,
+        });
+
+        // Gestion de la méthode pour l'ajout d'un fichier
+        const file = screen.getByTestId("file");
+        const handleChangeFile = jest.fn((e) =>
+          newBillObject.handleChangeFile(e)
+        );
+        //Simulation d'un ajout de fichier
+        file.addEventListener("change", handleChangeFile);
+        fireEvent.change(file, {
+          target: {
+            files: [new File(["Test"], "test.png", { type: "image/png" })],
+          },
+        });
+
+        // Récupération du message d'erreur
+        const errorMessage = screen.getByTestId("error-message-extension");
+
+        expect(errorMessage).toBeTruthy();
+        expect(errorMessage).toHaveClass("hiddenError");
+      });
+
       describe("When I upload a file with a bad extension", () => {
-        test("Then an error message should be show in the console", () => {
+        test("Then an error message should be show before its uploaded", () => {
           // Création d'un objet avec les propriétés adaptées
           Object.defineProperty(window, "localStorage", {
             value: localStorageMock,
@@ -125,14 +216,17 @@ describe("Given it logged in as an employee", () => {
           //La fonction est bien appelée
           expect(handleChangeFile).toHaveBeenCalled();
 
-          // Le message d'erreur dans la console s'affiche
-          expect(handleChangeFile).toThrowErrorMatchingSnapshot();
+          // Récupération du message d'erreur
+          const errorMessage = screen.getByTestId("error-message-extension");
+
+          expect(errorMessage).toBeTruthy();
+          expect(errorMessage).toHaveClass("showError");
         });
       });
 
-      describe("When, I click on submit", () => {
-        describe("When submit should be send", () => {
-          test("Then the form should be completed correctly ", () => {
+      describe("When, the user clicks on submit", () => {
+        describe("When the form should be completed correctly", () => {
+          test("Then the form should be send", () => {
             // Création d'un objet avec les propriétés adaptées
             Object.defineProperty(window, "localStorage", {
               value: localStorageMock,
@@ -257,14 +351,14 @@ describe("Given it logged in as an employee", () => {
             });
             fireEvent.submit(formNewBill);
 
-            // La méthode est bien appelée
+            // Les méthodes spont bien appelées
             expect(handleSubmit).toHaveBeenCalled();
             expect(updateBill).toHaveBeenCalled();
             expect(updateBill).toBeCalledWith(newBillTest);
           });
 
           describe("when the form is empty", () => {
-            test("then the form should not be send", () => {
+            test("then the form should not be send and the error message of form should be show", () => {
               // Création d'un objet avec les propriétés adaptées
               Object.defineProperty(window, "localStorage", {
                 value: localStorageMock,
@@ -317,7 +411,7 @@ describe("Given it logged in as an employee", () => {
               // La méthode est bien appelée
               expect(handleSubmit).toHaveBeenCalled();
 
-              // Vérification que les champs sont correctement rempli
+              // Vérification que les champs sont vides
               expect(
                 screen.getByRole("option", { name: "Transports" }).selected
               ).toBe(true);
@@ -341,6 +435,12 @@ describe("Given it logged in as an employee", () => {
                 document.querySelector(`textarea[data-testid="commentary"]`)
                   .value
               ).toEqual("");
+
+              // Récupération du message d'erreur
+              const errorMessage = screen.getByTestId("error-message-form");
+
+              expect(errorMessage).toBeTruthy();
+              expect(errorMessage).toHaveClass("showError");
             });
           });
         });
