@@ -11,7 +11,6 @@ import { ROUTES_PATH } from "../constants/routes.js";
 import router from "../app/Router.js";
 import NewBill from "../containers/NewBill.js";
 import userEvent from "@testing-library/user-event";
-import { when } from "jquery";
 
 jest.mock("../app/store", () => mockStore);
 
@@ -165,68 +164,201 @@ describe("Given it logged in as an employee", () => {
         expect(errorMessage).toBeTruthy();
         expect(errorMessage).toHaveClass("hiddenError");
       });
+    });
 
-      describe("When I upload a file with a bad extension", () => {
-        test("Then an error message should be show before its uploaded", () => {
+    describe("When I upload a file with a bad extension", () => {
+      test("Then an error message should be show before its uploaded", () => {
+        // Création d'un objet avec les propriétés adaptées
+        Object.defineProperty(window, "localStorage", {
+          value: localStorageMock,
+        });
+        // Connexion en tant qu'employé
+        window.localStorage.setItem(
+          "user",
+          JSON.stringify({
+            type: "Employee",
+          })
+        );
+        // Création d'une div root comme dans le DOM
+        const root = document.createElement("div");
+        root.setAttribute("id", "root");
+        // Ajout de la div
+        document.body.append(root);
+        //Lancement de la fonction rooter
+        router();
+        // Navigation sur la page NewBills
+        window.onNavigate(ROUTES_PATH.NewBill);
+
+        // Ajout de la view newbill
+        document.body.innerHTML = NewBillUI();
+
+        // Création d'une nouvelle note de frais
+        const newBillObject2 = new NewBill({
+          document,
+          onNavigate,
+          store: mockStore,
+          localStorage: window.localStorage,
+        });
+
+        // Gestion de la méthode pour l'ajout d'un fichier
+        const file = screen.getByTestId("file");
+        const handleChangeFile = jest.fn((e) =>
+          newBillObject2.handleChangeFile(e)
+        );
+        //Simulation d'un ajout de fichier
+        file.addEventListener("change", handleChangeFile);
+        fireEvent.change(file, {
+          target: {
+            files: [new File(["Test"], "test.txt")],
+          },
+        });
+
+        //La fonction est bien appelée
+        expect(handleChangeFile).toHaveBeenCalled();
+
+        // Récupération du message d'erreur
+        const errorMessage = screen.getByTestId("error-message-extension");
+
+        expect(errorMessage).toBeTruthy();
+        expect(errorMessage).toHaveClass("showError");
+      });
+    });
+
+    describe("When, the user clicks on submit", () => {
+      describe("When the form should be completed correctly", () => {
+        test("Then the form should be send", () => {
           // Création d'un objet avec les propriétés adaptées
           Object.defineProperty(window, "localStorage", {
             value: localStorageMock,
           });
-          // Connexion en tant qu'employé
+          //Connection en tant qu'employé
           window.localStorage.setItem(
             "user",
             JSON.stringify({
               type: "Employee",
+              email: "a@a",
             })
           );
-          // Création d'une div root comme dans le DOM
+
+          // Création d'une div root commme dans le DOM
           const root = document.createElement("div");
           root.setAttribute("id", "root");
-          // Ajout de la div
+          // Ajout de la div au bon endroit
           document.body.append(root);
-          //Lancement de la fonction rooter
+          //Initialisation de la fonction router
           router();
           // Navigation sur la page NewBills
           window.onNavigate(ROUTES_PATH.NewBill);
 
-          // Ajout de la view newbill
+          //Ajout de la view NewBill
           document.body.innerHTML = NewBillUI();
 
-          // Création d'une nouvelle note de frais
-          const newBillObject2 = new NewBill({
+          // Création d'objet - Nouvelle note de frais
+          const newBillObject = new NewBill({
             document,
             onNavigate,
             store: mockStore,
             localStorage: window.localStorage,
           });
 
+          // Récupération du formulaire
+          const formNewBill = screen.getByTestId("form-new-bill");
+
+          // Vérification que le formulaire s'affiche correctement
+          expect(formNewBill).toBeTruthy();
+
+          //Récupération des champs
+          const type = screen.getByTestId("expense-type");
+          const name = screen.getByTestId("expense-name");
+          const amount = screen.getByTestId("amount");
+          const date = screen.getByTestId("datepicker");
+          const vat = screen.getByTestId("vat");
+          const pct = screen.getByTestId("pct");
+          const commentary = screen.getByTestId("commentary");
+
+          // Nouvelle note de frais
+          const newBillTest = {
+            email: "employee@test.tld",
+            type: "Transport",
+            name: "Taxi",
+            amount: "100",
+            date: "2022-05-30",
+            vat: "20",
+            pct: "10",
+            commentary: `Taxi de l'aéroport au bureau`,
+            fileUrl: undefined,
+            fileName: "test.png",
+            status: "pending",
+          };
+
+          // Simulation du remplissage des données
+
+          userEvent.selectOptions(type, ["Transports"]);
+          userEvent.type(name, newBillTest.name);
+          userEvent.type(amount, newBillTest.amount);
+          fireEvent.change(date, { target: { value: newBillTest.date } });
+          userEvent.type(vat, newBillTest.vat);
+          userEvent.type(pct, newBillTest.pct);
+          userEvent.type(commentary, newBillTest.commentary);
+
           // Gestion de la méthode pour l'ajout d'un fichier
           const file = screen.getByTestId("file");
           const handleChangeFile = jest.fn((e) =>
-            newBillObject2.handleChangeFile(e)
+            newBillObject.handleChangeFile(e)
           );
           //Simulation d'un ajout de fichier
           file.addEventListener("change", handleChangeFile);
           fireEvent.change(file, {
             target: {
-              files: [new File(["Test"], "test.txt")],
+              files: [new File(["Test"], "test.png", { type: "image/png" })],
             },
           });
 
-          //La fonction est bien appelée
-          expect(handleChangeFile).toHaveBeenCalled();
+          //Mock de la méthode de soumission du formulaire
+          const handleSubmit = jest.fn((e) => newBillObject.handleSubmit(e));
+          //Mock de la méthode de soumission du formulaire
+          const updateBill = jest.fn((newBillTest) =>
+            newBillObject.updateBill(newBillTest)
+          );
 
-          // Récupération du message d'erreur
-          const errorMessage = screen.getByTestId("error-message-extension");
+          // Vérification que les champs sont correctement rempli
+          expect(
+            screen.getByRole("option", { name: "Transports" }).selected
+          ).toBe(true);
+          expect(
+            document.querySelector(`input[data-testid="expense-name"]`).value
+          ).toEqual("Taxi");
+          expect(
+            document.querySelector(`input[data-testid="amount"]`).value
+          ).toEqual("100");
+          expect(
+            document.querySelector(`input[data-testid="datepicker"]`).value
+          ).toBe("2022-05-30");
+          expect(
+            document.querySelector(`input[data-testid="vat"]`).value
+          ).toEqual("20");
+          expect(
+            document.querySelector(`input[data-testid="pct"]`).value
+          ).toEqual("10");
+          expect(
+            document.querySelector(`textarea[data-testid="commentary"]`).value
+          ).toEqual("Taxi de l'aéroport au bureau");
 
-          expect(errorMessage).toBeTruthy();
-          expect(errorMessage).toHaveClass("showError");
+          // Simulation de la soumission du formulaire
+          formNewBill.addEventListener("submit", (e) => {
+            handleSubmit(e);
+            updateBill(newBillTest);
+          });
+          fireEvent.submit(formNewBill);
+
+          // Les méthodes spont bien appelées
+          expect(handleSubmit).toHaveBeenCalled();
+          expect(updateBill).toHaveBeenCalled();
+          expect(updateBill).toBeCalledWith(newBillTest);
         });
-      });
 
-      describe("When, the user clicks on submit", () => {
-        describe("When the form should be completed correctly", () => {
-          test("Then the form should be send", () => {
+        describe("when the form is empty", () => {
+          test("then the form should not be send and the error message of form should be show", () => {
             // Création d'un objet avec les propriétés adaptées
             Object.defineProperty(window, "localStorage", {
               value: localStorageMock,
@@ -267,181 +399,44 @@ describe("Given it logged in as an employee", () => {
             // Vérification que le formulaire s'affiche correctement
             expect(formNewBill).toBeTruthy();
 
-            //Récupération des champs
-            const type = screen.getByTestId("expense-type");
-            const name = screen.getByTestId("expense-name");
-            const amount = screen.getByTestId("amount");
-            const date = screen.getByTestId("datepicker");
-            const vat = screen.getByTestId("vat");
-            const pct = screen.getByTestId("pct");
-            const commentary = screen.getByTestId("commentary");
-
-            // Nouvelle note de frais
-            const newBillTest = {
-              email: "employee@test.tld",
-              type: "Transport",
-              name: "Taxi",
-              amount: "100",
-              date: "2022-05-30",
-              vat: "20",
-              pct: "10",
-              commentary: `Taxi de l'aéroport au bureau`,
-              fileUrl: undefined,
-              fileName: "test.png",
-              status: "pending",
-            };
-
-            // Simulation du remplissage des données
-
-            userEvent.selectOptions(type, ["Transports"]);
-            userEvent.type(name, newBillTest.name);
-            userEvent.type(amount, newBillTest.amount);
-            fireEvent.change(date, { target: { value: newBillTest.date } });
-            userEvent.type(vat, newBillTest.vat);
-            userEvent.type(pct, newBillTest.pct);
-            userEvent.type(commentary, newBillTest.commentary);
-
-            // Gestion de la méthode pour l'ajout d'un fichier
-            const file = screen.getByTestId("file");
-            const handleChangeFile = jest.fn((e) =>
-              newBillObject.handleChangeFile(e)
-            );
-            //Simulation d'un ajout de fichier
-            file.addEventListener("change", handleChangeFile);
-            fireEvent.change(file, {
-              target: {
-                files: [new File(["Test"], "test.png", { type: "image/png" })],
-              },
-            });
-
             //Mock de la méthode de soumission du formulaire
             const handleSubmit = jest.fn((e) => newBillObject.handleSubmit(e));
-            //Mock de la méthode de soumission du formulaire
-            const updateBill = jest.fn((newBillTest) =>
-              newBillObject.updateBill(newBillTest)
-            );
 
-            // Vérification que les champs sont correctement rempli
+            // Simulation de la soumission du formulaire
+            formNewBill.addEventListener("submit", handleSubmit);
+            fireEvent.submit(formNewBill);
+
+            // La méthode est bien appelée
+            expect(handleSubmit).toHaveBeenCalled();
+
+            // Vérification que les champs sont vides
             expect(
               screen.getByRole("option", { name: "Transports" }).selected
             ).toBe(true);
             expect(
               document.querySelector(`input[data-testid="expense-name"]`).value
-            ).toEqual("Taxi");
+            ).toEqual("");
             expect(
               document.querySelector(`input[data-testid="amount"]`).value
-            ).toEqual("100");
+            ).toEqual("");
             expect(
               document.querySelector(`input[data-testid="datepicker"]`).value
-            ).toBe("2022-05-30");
+            ).toBe("");
             expect(
               document.querySelector(`input[data-testid="vat"]`).value
-            ).toEqual("20");
+            ).toEqual("");
             expect(
               document.querySelector(`input[data-testid="pct"]`).value
-            ).toEqual("10");
+            ).toEqual("");
             expect(
               document.querySelector(`textarea[data-testid="commentary"]`).value
-            ).toEqual("Taxi de l'aéroport au bureau");
+            ).toEqual("");
 
-            // Simulation de la soumission du formulaire
-            formNewBill.addEventListener("submit", (e) => {
-              handleSubmit(e);
-              updateBill(newBillTest);
-            });
-            fireEvent.submit(formNewBill);
+            // Récupération du message d'erreur
+            const errorMessage = screen.getByTestId("error-message-form");
 
-            // Les méthodes spont bien appelées
-            expect(handleSubmit).toHaveBeenCalled();
-            expect(updateBill).toHaveBeenCalled();
-            expect(updateBill).toBeCalledWith(newBillTest);
-          });
-
-          describe("when the form is empty", () => {
-            test("then the form should not be send and the error message of form should be show", () => {
-              // Création d'un objet avec les propriétés adaptées
-              Object.defineProperty(window, "localStorage", {
-                value: localStorageMock,
-              });
-              //Connection en tant qu'employé
-              window.localStorage.setItem(
-                "user",
-                JSON.stringify({
-                  type: "Employee",
-                  email: "a@a",
-                })
-              );
-
-              // Création d'une div root commme dans le DOM
-              const root = document.createElement("div");
-              root.setAttribute("id", "root");
-              // Ajout de la div au bon endroit
-              document.body.append(root);
-              //Initialisation de la fonction router
-              router();
-              // Navigation sur la page NewBills
-              window.onNavigate(ROUTES_PATH.NewBill);
-
-              //Ajout de la view NewBill
-              document.body.innerHTML = NewBillUI();
-
-              // Création d'objet - Nouvelle note de frais
-              const newBillObject = new NewBill({
-                document,
-                onNavigate,
-                store: mockStore,
-                localStorage: window.localStorage,
-              });
-
-              // Récupération du formulaire
-              const formNewBill = screen.getByTestId("form-new-bill");
-
-              // Vérification que le formulaire s'affiche correctement
-              expect(formNewBill).toBeTruthy();
-
-              //Mock de la méthode de soumission du formulaire
-              const handleSubmit = jest.fn((e) =>
-                newBillObject.handleSubmit(e)
-              );
-
-              // Simulation de la soumission du formulaire
-              formNewBill.addEventListener("submit", handleSubmit);
-              fireEvent.submit(formNewBill);
-
-              // La méthode est bien appelée
-              expect(handleSubmit).toHaveBeenCalled();
-
-              // Vérification que les champs sont vides
-              expect(
-                screen.getByRole("option", { name: "Transports" }).selected
-              ).toBe(true);
-              expect(
-                document.querySelector(`input[data-testid="expense-name"]`)
-                  .value
-              ).toEqual("");
-              expect(
-                document.querySelector(`input[data-testid="amount"]`).value
-              ).toEqual("");
-              expect(
-                document.querySelector(`input[data-testid="datepicker"]`).value
-              ).toBe("");
-              expect(
-                document.querySelector(`input[data-testid="vat"]`).value
-              ).toEqual("");
-              expect(
-                document.querySelector(`input[data-testid="pct"]`).value
-              ).toEqual("");
-              expect(
-                document.querySelector(`textarea[data-testid="commentary"]`)
-                  .value
-              ).toEqual("");
-
-              // Récupération du message d'erreur
-              const errorMessage = screen.getByTestId("error-message-form");
-
-              expect(errorMessage).toBeTruthy();
-              expect(errorMessage).toHaveClass("showError");
-            });
+            expect(errorMessage).toBeTruthy();
+            expect(errorMessage).toHaveClass("showError");
           });
         });
       });
