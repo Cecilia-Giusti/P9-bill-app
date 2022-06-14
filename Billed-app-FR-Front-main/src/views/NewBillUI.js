@@ -6,16 +6,16 @@ export default () => {
       ${VerticalLayout(120)}
       <div class='content'>
         <div class='content-header'>
-          <div class='content-title'> Envoyer une note de frais </div>
+          <div data-testid="send-new-bill" class='content-title'> Envoyer une note de frais </div>
         </div>
-        <div class="form-newbill-container content-inner">
+        <div id="formNewBill" class="form-newbill-container content-inner">
           <form data-testid="form-new-bill">
             <div class="row">
                 <div class="col-md-6">
                   <div class="col-half">
                     <label for="expense-type" class="bold-label">Type de dépense</label>
                       <select required class="form-control blue-border" data-testid="expense-type">
-                        <option>Transports</option>
+                        <option value="Transports">Transports</option>
                         <option>Restaurants et bars</option>
                         <option>Hôtel et logement</option>
                         <option>Services en ligne</option>
@@ -30,7 +30,7 @@ export default () => {
                   </div>
                   <div class="col-half">
                     <label for="datepicker" class="bold-label">Date</label>
-                    <input required type="date" class="form-control blue-border" data-testid="datepicker" />
+                    <input required type="date" class="form-control blue-border" id="datepicker" data-testid="datepicker" />
                   </div>
                   <div class="col-half">
                     <label for="amount" class="bold-label">Montant TTC </label>
@@ -54,7 +54,7 @@ export default () => {
                   </div>
                   <div class="col-half">
                     <label for="file" class="bold-label">Justificatif (jpg, jpeg ou png)</label>
-                    <input required type="file" class="form-control blue-border" data-testid="file" />
+                    <input required type="file" accept="image/png, image/jpg, image/jpeg" class="form-control blue-border" data-testid="file" />
                   </div>
                 </div>
             </div>
