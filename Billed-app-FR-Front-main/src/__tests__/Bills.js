@@ -70,7 +70,7 @@ describe("Given it logged in as an employee", () => {
     });
 
     describe(`when I click on the "new bill" button`, () => {
-      test("then, the form for the new expense report is displayed", () => {
+      test("then, the form for the new bill should be show", () => {
         // Création d'un objet avec les propriétés adaptées
         Object.defineProperty(window, "localStorage", {
           value: localStorageMock,
@@ -89,11 +89,14 @@ describe("Given it logged in as an employee", () => {
         document.body.append(root);
         //Initialisation de la fonction router
         router();
-        // Navigation sur la page Bills
-        window.onNavigate(ROUTES_PATH.Bills);
+
+        // Bouton à cliquer
+        const newBillButton = getByTestId(document.body, "btn-new-bill");
+        // Mock de la fonction de navigation
+        const navigate = jest.fn(window.onNavigate(ROUTES_PATH.Bills));
 
         // Simulation du click
-        const newBillButton = getByTestId(document.body, "btn-new-bill");
+        newBillButton.addEventListener("click", navigate);
         userEvent.click(newBillButton);
 
         // Test si le texte de la page NewBill s'affiche correctement
