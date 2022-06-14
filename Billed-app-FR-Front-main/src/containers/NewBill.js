@@ -43,7 +43,7 @@ export default class NewBill {
 
   handleChangeFile = (e) => {
     e.preventDefault();
-    const extendAccepted = new RegExp(".(jpg|jpeg|png)$");
+    const extendAccepted = new RegExp("\\.(jpg|jpeg|png)$");
     if (
       extendAccepted.test(
         this.document.querySelector(`input[data-testid="file"]`).files[0].name
