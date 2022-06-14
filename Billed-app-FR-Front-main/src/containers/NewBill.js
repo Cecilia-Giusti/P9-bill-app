@@ -16,6 +16,7 @@ export default class NewBill {
     this.fileName = null;
     this.billId = null;
     new Logout({ document, localStorage, onNavigate });
+
     // Création du message d'erreur pour le formulaire
     const errorMessageForm = document.createElement("div");
     errorMessageForm.setAttribute("data-testid", "error-message-form");
