@@ -62,10 +62,13 @@ textarea:focus, input:focus, select:focus {
   color: #0E5AE5 !important;
 }
 
-.errorMessageExtension{
+.errorMessageExtension, .errorMessageForm{
   color:red;
 }
 
+.errorMessageForm{
+  text-align: center;
+}
 .showError {
   display : block;
 }

@@ -16,9 +16,19 @@ export default class NewBill {
     this.fileName = null;
     this.billId = null;
     new Logout({ document, localStorage, onNavigate });
+    // Création du message d'erreur pour le formulaire
+    const errorMessageForm = document.createElement("div");
+    errorMessageForm.setAttribute("data-testid", "error-message-form");
+    errorMessageForm.setAttribute("class", "errorMessageForm hiddenError");
+    errorMessageForm.innerHTML = "Veuillez remplir tous les champs demandés";
+    this.document.querySelector("#formNewBill").appendChild(errorMessageForm);
 
-    // Création du message d'erreur
+    // Création du message d'erreur pour les extensions de fichier
     const errorMessageExtension = document.createElement("div");
+    errorMessageExtension.setAttribute(
+      "data-testid",
+      "error-message-extension"
+    );
     errorMessageExtension.setAttribute(
       "class",
       "errorMessageExtension hiddenError"
@@ -105,8 +115,22 @@ export default class NewBill {
       fileName: this.fileName,
       status: "pending",
     };
-    this.updateBill(bill);
-    this.onNavigate(ROUTES_PATH["Bills"]);
+
+    if (
+      !bill.name ||
+      !bill.amount ||
+      !bill.date ||
+      !bill.pct ||
+      !bill.fileName
+    ) {
+      const errorMessageForm = this.document.querySelector(".errorMessageForm");
+      errorMessageForm.setAttribute("class", "errorMessageForm showError");
+    } else {
+      this.updateBill(bill);
+      const errorMessageForm = this.document.querySelector(".errorMessageForm");
+      errorMessageForm.setAttribute("class", "errorMessageForm hiddenError");
+      this.onNavigate(ROUTES_PATH["Bills"]);
+    }
   };
 
   // not need to cover this function by tests
