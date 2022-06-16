@@ -117,19 +117,13 @@ export default class NewBill {
       status: "pending",
     };
 
-    if (
-      !bill.name ||
-      !bill.amount ||
-      !bill.date ||
-      !bill.pct ||
-      !bill.fileName
-    ) {
+    if (!bill.name || !bill.amount || !bill.date || !bill.pct) {
       const errorMessageForm = this.document.querySelector(".errorMessageForm");
       errorMessageForm.setAttribute("class", "errorMessageForm showError");
     } else {
-      this.updateBill(bill);
       const errorMessageForm = this.document.querySelector(".errorMessageForm");
       errorMessageForm.setAttribute("class", "errorMessageForm hiddenError");
+      this.updateBill(bill);
       this.onNavigate(ROUTES_PATH["Bills"]);
     }
   };

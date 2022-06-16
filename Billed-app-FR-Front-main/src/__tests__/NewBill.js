@@ -11,6 +11,7 @@ import { ROUTES_PATH } from "../constants/routes.js";
 import router from "../app/Router.js";
 import NewBill from "../containers/NewBill.js";
 import userEvent from "@testing-library/user-event";
+import Bills from "../containers/Bills.js";
 
 jest.mock("../app/store", () => mockStore);
 
@@ -301,19 +302,6 @@ describe("Given it logged in as an employee", () => {
           userEvent.type(pct, newBillTest.pct);
           userEvent.type(commentary, newBillTest.commentary);
 
-          // Gestion de la méthode pour l'ajout d'un fichier
-          const file = screen.getByTestId("file");
-          const handleChangeFile = jest.fn((e) =>
-            newBillObject.handleChangeFile(e)
-          );
-          //Simulation d'un ajout de fichier
-          file.addEventListener("change", handleChangeFile);
-          fireEvent.change(file, {
-            target: {
-              files: [new File(["Test"], "test.png", { type: "image/png" })],
-            },
-          });
-
           //Mock de la méthode de soumission du formulaire
           const handleSubmit = jest.fn((e) => newBillObject.handleSubmit(e));
           //Mock de la méthode de soumission du formulaire
@@ -351,8 +339,16 @@ describe("Given it logged in as an employee", () => {
           });
           fireEvent.submit(formNewBill);
 
-          // Les méthodes spont bien appelées
+          // La méthode de soumission est bien appelé
           expect(handleSubmit).toHaveBeenCalled();
+
+          // Récupération du message d'erreur
+          const errorMessage = screen.getByTestId("error-message-form");
+          // Le message d'erreur n'est pas appelé
+          expect(errorMessage).toBeTruthy();
+          expect(errorMessage).toHaveClass("hiddenError");
+
+          // Les notes de frais sont mises à jour
           expect(updateBill).toHaveBeenCalled();
           expect(updateBill).toBeCalledWith(newBillTest);
         });
