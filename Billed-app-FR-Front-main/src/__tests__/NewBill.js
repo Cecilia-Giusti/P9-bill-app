@@ -489,7 +489,7 @@ describe("Given it logged in as an employee", () => {
           //Vérification qu'il soit bien affiché
           expect(message).toBeTruthy();
         });
-        test("fetches bills from an API and fails with 505 message error", async () => {
+        test("fetches bills to API and fails with 505 message error", async () => {
           // Récupération des données mocked et application à la suite de la methode create avec la simulation d'une erreur
           mockStore.bills.mockImplementationOnce(() => {
             return {
