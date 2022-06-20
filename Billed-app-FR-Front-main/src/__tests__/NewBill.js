@@ -3,15 +3,15 @@
  */
 
 import "@testing-library/jest-dom";
-import { screen, fireEvent } from "@testing-library/dom";
+import { screen, fireEvent, waitFor } from "@testing-library/dom";
 import NewBillUI from "../views/NewBillUI.js";
-import mockStore from "../__mocks__/store";
-import { localStorageMock } from "../__mocks__/localStorage.js";
-import { ROUTES_PATH } from "../constants/routes.js";
-import router from "../app/Router.js";
 import NewBill from "../containers/NewBill.js";
 import userEvent from "@testing-library/user-event";
-import Bills from "../containers/Bills.js";
+import BillsUI from "../views/BillsUI.js";
+import { ROUTES_PATH } from "../constants/routes.js";
+import { localStorageMock } from "../__mocks__/localStorage.js";
+import mockStore from "../__mocks__/store";
+import router from "../app/Router.js";
 
 jest.mock("../app/store", () => mockStore);
 
@@ -434,6 +434,79 @@ describe("Given it logged in as an employee", () => {
             expect(errorMessage).toBeTruthy();
             expect(errorMessage).toHaveClass("showError");
           });
+        });
+      });
+    });
+  });
+});
+
+// test d'intégration POST
+describe("Given it logged in as an employee", () => {
+  describe("When I am on NewBill Page", () => {
+    describe("When I send a right New Bill ", () => {
+      describe("When an error occurs on API", () => {
+        // Avant chaque test
+        beforeEach(() => {
+          // Création d'une fonction simulée mais qui surveille les appels
+          jest.spyOn(mockStore, "bills");
+
+          // Création d'un ojet avec les bonnes propirétées
+          Object.defineProperty(window, "localStorage", {
+            value: localStorageMock,
+          });
+          window.localStorage.setItem(
+            "user",
+            JSON.stringify({
+              type: "Employee",
+              email: "a@a",
+            })
+          );
+
+          //Création d'une div root comme dans le DOM
+          const root = document.createElement("div");
+          root.setAttribute("id", "root");
+          //Ajout de la div au bon endroit
+          document.body.appendChild(root);
+          // Lancement de la fonction rooter
+          router();
+        });
+        test("fetches bills to API and fails with 404 message error", async () => {
+          // Récupération des données mocked et application à la suite de la methode create avec la simulation d'une erreur
+          mockStore.bills.mockImplementationOnce(() => {
+            return {
+              create: () => {
+                return Promise.reject(new Error("Erreur 404"));
+              },
+            };
+          });
+
+          // Envoi de l'erreur dans la fonction view de Bills
+          document.body.innerHTML = BillsUI({ error: "Erreur 404" });
+
+          // Recherche du message d'erreur
+          const message = await screen.getByText(/Erreur 404/);
+
+          //Vérification qu'il soit bien affiché
+          expect(message).toBeTruthy();
+        });
+        test("fetches bills from an API and fails with 505 message error", async () => {
+          // Récupération des données mocked et application à la suite de la methode create avec la simulation d'une erreur
+          mockStore.bills.mockImplementationOnce(() => {
+            return {
+              create: () => {
+                return Promise.reject(new Error("Erreur 500"));
+              },
+            };
+          });
+
+          // Envoi de l'erreur dans la fonction view de Bills
+          document.body.innerHTML = BillsUI({ error: "Erreur 500" });
+
+          // Recherche du message d'erreur
+          const message = await screen.getByText(/Erreur 500/);
+
+          //Vérification qu'il soit bien affiché
+          expect(message).toBeTruthy();
         });
       });
     });
