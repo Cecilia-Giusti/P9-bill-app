@@ -444,6 +444,36 @@ describe("Given it logged in as an employee", () => {
 describe("Given it logged in as an employee", () => {
   describe("When I am on NewBill Page", () => {
     describe("When I send a right New Bill ", () => {
+      test("then the new bill should be show in bill", async () => {
+        // Création d'une fonction simulée mais qui surveille les appels
+        jest.spyOn(mockStore, "bills");
+
+        //Récupération des bills mocked
+        const bills = await mockStore.bills().list();
+
+        // Il y a bien 4 note de frais au départ
+        expect(bills.length).toEqual(4);
+
+        // Nouvelle note de frais
+        const newBillTest = {
+          email: "employee@test.tld",
+          type: "Transport",
+          name: "Taxi",
+          amount: "100",
+          date: "2022-05-30",
+          vat: "20",
+          pct: "10",
+          commentary: `Taxi de l'aéroport au bureau`,
+          fileUrl: undefined,
+          fileName: "test.png",
+          status: "pending",
+        };
+
+        // Ajout d'une nouvelle note de frais dans la liste des bills mocked
+        mockStore.bills().create(newBillTest);
+
+        waitFor(() => expect(bills.length).toEqual(5));
+      });
       describe("When an error occurs on API", () => {
         // Avant chaque test
         beforeEach(() => {
