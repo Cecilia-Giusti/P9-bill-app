@@ -472,6 +472,7 @@ describe("Given it logged in as an employee", () => {
         // Ajout d'une nouvelle note de frais dans la liste des bills mocked
         mockStore.bills().create(newBillTest);
 
+        // Il y a maintenant 5 notes de frais
         waitFor(() => expect(bills.length).toEqual(5));
       });
       describe("When an error occurs on API", () => {
