@@ -38,12 +38,14 @@ Wealth Healt uses the following tech stack:
 
 # Install dependencies
 
-`cd Billed-app-FR-Back`
-`npm install`
-   
-`cd Billed-app-FR-Front `
-`npm install`
-    
+```
+cd Billed-app-FR-Back
+npm install
+```
+```
+cd Billed-app-FR-Front
+npm install
+```
 
 # Lunch API
 
