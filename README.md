@@ -21,6 +21,60 @@ L'application possède des bugs et tous les tests n'ont pas été réalisés.
 <a href="https://www.notion.so/a7a612fc166747e78d95aa38106a55ec?v=2a8d3553379c4366b6f66490ab8f0b90"> Voir tableau kanban
 </a>
 
+## Getting Started
+
+### Prerequisites
+
+Wealth Healt uses the following tech stack:
+
+-   [Node.js v16](https://nodejs.org/en/)
+
+### Instructions
+
+1.  Fork this repo
+2.  Clone the repo onto your computer
+3.  Open a terminal window in the cloned project
+4.  Run the following commands:
+
+# Install dependencies
+
+`cd Billed-app-FR-Back`
+`npm install`
+   
+`cd Billed-app-FR-Front `
+`npm install`
+    
+
+# Lunch API
+
+    npm run run:dev
+
+### Accéder à l'API :
+
+L'api est accessible sur le port  `5678`  en local, c'est à dire  `http://localhost:5678`
+
+### Utilisateurs par défaut:
+
+#### administrateur :
+
+```
+utilisateur : admin@test.tld 
+mot de passe : admin
+
+```
+
+#### employé :
+
+```
+utilisateur : employee@test.tld
+mot de passe : employee
+```
+
+# Start application
+
+    npm start
+
+
 
 
 
